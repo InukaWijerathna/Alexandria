@@ -6,6 +6,8 @@ const authRoutes = require('./routes/auth');
 const bookRoutes = require('./routes/books');
 const borrowRoutes = require('./routes/borrow');
 
+const path = require('path');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -16,6 +18,14 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/borrow', borrowRoutes);
+
+// Static files (Production)
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// Catch-all route to serve the frontend index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+});
 
 // Error Handling
 app.use((err, req, res, next) => {
