@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import Books from './pages/Books';
 import Profile from './pages/Profile';
+import ManageUsers from './pages/ManageUsers';
 
 function App() {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || null);
@@ -30,6 +31,7 @@ function App() {
           <Route path="/register" element={!user ? <Register /> : <Navigate to={user.role === 'admin' ? '/admin' : '/books'} />} />
           
           <Route path="/admin" element={user?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/login" />} />
+          <Route path="/admin/users" element={user?.role === 'admin' ? <ManageUsers /> : <Navigate to="/login" />} />
           <Route path="/books" element={user ? <Books /> : <Navigate to="/login" />} />
           <Route path="/profile" element={user ? <Profile user={user} /> : <Navigate to="/login" />} />
           
