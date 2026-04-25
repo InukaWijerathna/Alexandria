@@ -21,7 +21,7 @@ function App() {
   };
 
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}>
       <Navbar user={user} onLogout={handleLogout} />
       <div className="container">
         <Routes>

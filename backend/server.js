@@ -33,15 +33,20 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Internal Server Error' });
 });
 
-async function startServer() {
-    try {
-        await getDb();
-        app.listen(PORT, () => {
-            console.log(`Server is running on http://localhost:${PORT}`);
-        });
-    } catch (error) {
-        console.error('Failed to start server:', error);
-    }
-}
+// Export the app for Vercel
+module.exports = app;
 
-startServer();
+// Only start the server if this file is run directly
+if (require.main === module) {
+    async function startServer() {
+        try {
+            await getDb();
+            app.listen(PORT, () => {
+                console.log(`Server is running on http://localhost:${PORT}`);
+            });
+        } catch (error) {
+            console.error('Failed to start server:', error);
+        }
+    }
+    startServer();
+}

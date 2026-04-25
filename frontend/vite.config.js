@@ -4,5 +4,9 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+<<<<<<< Updated upstream
   base: "/Alexandria/"
+=======
+  base: '/Alexandria/',
+>>>>>>> Stashed changes
 })
