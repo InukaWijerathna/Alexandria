@@ -21,13 +21,18 @@
 
 ## 🚀 Deployment
 
-The project is optimized for a unified deployment on **Vercel** with a persistent **PostgreSQL** database.
+The project is deployed using a **Hybrid Architecture** for maximum performance and a custom sub-path URL.
 
-### Unified Mono-deployment
-The project uses a `vercel.json` configuration to host the React frontend and Node.js Express API under the same domain.
+- **Live URL**: [https://inukawijerathna.me/Alexandria/](https://inukawijerathna.me/Alexandria/)
+
+### Frontend (GitHub Pages)
+The React frontend is hosted on **GitHub Pages**, specifically to support the `inukawijerathna.me/Alexandria/` path. Deployment is automated via GitHub Actions.
+
+### Backend (Vercel)
+The Node.js Express API is hosted on **Vercel** as a high-performance serverless backend.
 
 ### Database (Supabase)
-For persistent storage in production, the system automatically switches to **PostgreSQL** when a `DATABASE_URL` environment variable is provided. Locally, it uses **SQLite** for zero-config development.
+For persistent storage, the system uses **PostgreSQL**. The backend automatically switches to PostgreSQL when a `DATABASE_URL` is provided, while falling back to **SQLite** for local development.
 
 ---
 
@@ -36,9 +41,9 @@ For persistent storage in production, the system automatically switches to **Pos
 - **Frontend**: React, Vite, Axios, React Router.
 - **Backend**: Node.js, Express, JWT, BcryptJS.
 - **Database**: 
-  - **Production**: PostgreSQL (Supabase/Neon).
+  - **Production**: PostgreSQL (Supabase).
   - **Development**: SQLite (Local file).
-- **Deployment**: Vercel (Unified Monorepo).
+- **Deployment**: Hybrid (GitHub Pages + Vercel).
 
 ## 🚀 Quick Start
 
