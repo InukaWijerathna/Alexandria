@@ -19,10 +19,31 @@
 - **Accent**: Vintage Gold (#E0A458)
 - **Background**: Ghost White (#F8F9FA)
 
+## 🚀 Deployment
+
+The project is optimized for a unified deployment on **Vercel** with a persistent **PostgreSQL** database.
+
+### Unified Mono-deployment
+The project uses a `vercel.json` configuration to host the React frontend and Node.js Express API under the same domain.
+
+### Database (Supabase)
+For persistent storage in production, the system automatically switches to **PostgreSQL** when a `DATABASE_URL` environment variable is provided. Locally, it uses **SQLite** for zero-config development.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React, Vite, Axios, React Router.
+- **Backend**: Node.js, Express, JWT, BcryptJS.
+- **Database**: 
+  - **Production**: PostgreSQL (Supabase/Neon).
+  - **Development**: SQLite (Local file).
+- **Deployment**: Vercel (Unified Monorepo).
+
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v18+)
+- Node.js (v20+)
 - npm
 
 ### Installation
@@ -31,11 +52,9 @@
    git clone https://github.com/InukaWijerathna/Alexandria.git
    cd Alexandria
    ```
-2. Install dependencies for all parts:
+2. Install all dependencies:
    ```bash
    npm install
-   cd backend && npm install
-   cd ../frontend && npm install
    ```
 
 ### Development
@@ -44,17 +63,7 @@ Run both servers concurrently:
 npm run dev
 ```
 
-### Production Build & Deployment
-Build the frontend and run the production server:
-```bash
-npm run build
-npm start
-```
-
-## 🛠️ Tech Stack
-- **Frontend**: React, Vite, Axios, React Router, Vanilla CSS.
-- **Backend**: Node.js, Express, SQLite, JWT, BcryptJS.
-- **Database**: SQLite (Automated table creation).
+---
 
 ## 📄 License
 MIT
