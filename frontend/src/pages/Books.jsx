@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 
-function MemberDashboard() {
+function Books() {
   const [books, setBooks] = useState([]);
   const [myBorrows, setMyBorrows] = useState([]);
   const [search, setSearch] = useState('');
@@ -131,6 +131,9 @@ function MemberDashboard() {
                   <span className={`status-pill status-${book.status}`}>{book.status}</span>
                   <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{book.genre}</span>
                 </div>
+                <div style={{ height: '200px', marginBottom: '1.5rem', borderRadius: '12px', overflow: 'hidden' }}>
+                  <img src={book.coverImage || 'https://placehold.co/400x600/132440/c3cdd9?text=Cover'} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
                 <h3 style={{ marginBottom: '0.5rem' }}>{book.title}</h3>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>by {book.author}</p>
                 <button 
@@ -167,6 +170,9 @@ function MemberDashboard() {
                         <span className={`status-pill status-${book.status}`}>{book.status}</span>
                         <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{book.genre}</span>
                       </div>
+                      <div style={{ height: '200px', marginBottom: '1.5rem', borderRadius: '12px', overflow: 'hidden' }}>
+                        <img src={book.coverImage || 'https://placehold.co/400x600/132440/c3cdd9?text=Cover'} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
                       <h3 style={{ marginBottom: '0.5rem' }}>{book.title}</h3>
                       <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>by {book.author}</p>
                       <button 
@@ -201,7 +207,7 @@ function MemberDashboard() {
         >
           <div 
             className="glass-card" 
-            style={{ padding: '2.5rem', maxWidth: '600px', width: '90%', position: 'relative' }} 
+            style={{ padding: '2.5rem', maxWidth: '800px', width: '90%', position: 'relative' }} 
             onClick={e => e.stopPropagation()}
           >
             <button 
@@ -210,30 +216,41 @@ function MemberDashboard() {
             >
               &times;
             </button>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
-              <span className={`status-pill status-${selectedBook.status}`}>{selectedBook.status}</span>
-              <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{selectedBook.genre}</span>
+            <div style={{ display: 'flex', gap: '2rem', marginTop: '1rem' }}>
+              <div style={{ flex: '0 0 200px', display: 'flex', flexDirection: 'column' }}>
+                <img 
+                  src={selectedBook.coverImage || 'https://placehold.co/400x600/132440/c3cdd9?text=Cover'} 
+                  alt={selectedBook.title} 
+                  style={{ width: '100%', borderRadius: '12px', objectFit: 'cover', boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)' }} 
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
+                  <span className={`status-pill status-${selectedBook.status}`}>{selectedBook.status}</span>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{selectedBook.genre}</span>
+                </div>
+                <h2 style={{ marginBottom: '0.5rem', fontSize: '2.5rem', lineHeight: '1.2' }}>{selectedBook.title}</h2>
+                <p style={{ color: 'var(--accent)', marginBottom: '1.5rem', fontSize: '1.2rem' }}>by {selectedBook.author}</p>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6' }}>
+                  Dive into the world of <strong>{selectedBook.title}</strong>, a captivating {selectedBook.genre.toLowerCase()} masterpiece written by {selectedBook.author}. 
+                  This remarkable work promises an unforgettable journey filled with twists, turns, and thoughtful commentary. 
+                  {selectedBook.isbn && <><br/><br/><strong>ISBN:</strong> {selectedBook.isbn}</>}
+                </p>
+                <button 
+                  className={`btn ${selectedBook.status === 'available' ? 'btn-primary' : 'btn-outline'}`} 
+                  style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }}
+                  onClick={() => {
+                    if (selectedBook.status === 'available') {
+                      handleCheckout(selectedBook.id);
+                      setSelectedBook(null); // Optional: close modal when borrowed
+                    }
+                  }}
+                  disabled={selectedBook.status !== 'available'}
+                >
+                  {selectedBook.status === 'available' ? 'Borrow Now' : (myBorrows.some(b => b.bookId === selectedBook.id) ? 'Borrowed' : 'Currently Out')}
+                </button>
+              </div>
             </div>
-            <h2 style={{ marginBottom: '0.5rem', fontSize: '2rem' }}>{selectedBook.title}</h2>
-            <p style={{ color: 'var(--accent)', marginBottom: '1rem', fontSize: '1.2rem' }}>by {selectedBook.author}</p>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6' }}>
-              Dive into the world of <strong>{selectedBook.title}</strong>, a captivating {selectedBook.genre.toLowerCase()} masterpiece written by {selectedBook.author}. 
-              This remarkable work promises an unforgettable journey filled with twists, turns, and thoughtful commentary. 
-              {selectedBook.isbn && <><br/><br/><strong>ISBN:</strong> {selectedBook.isbn}</>}
-            </p>
-            <button 
-              className={`btn ${selectedBook.status === 'available' ? 'btn-primary' : 'btn-outline'}`} 
-              style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }}
-              onClick={() => {
-                if (selectedBook.status === 'available') {
-                  handleCheckout(selectedBook.id);
-                  setSelectedBook(null); // Optional: close modal when borrowed
-                }
-              }}
-              disabled={selectedBook.status !== 'available'}
-            >
-              {selectedBook.status === 'available' ? 'Borrow Now' : (myBorrows.some(b => b.bookId === selectedBook.id) ? 'Borrowed' : 'Currently Out')}
-            </button>
           </div>
         </div>
       )}
@@ -241,4 +258,4 @@ function MemberDashboard() {
   );
 }
 
-export default MemberDashboard;
+export default Books;

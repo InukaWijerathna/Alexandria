@@ -15,7 +15,8 @@ function Navbar({ user, onLogout }) {
       <ul className="nav-links">
         {user ? (
           <>
-            <li><Link to={user.role === 'admin' ? '/admin' : '/member'}>Dashboard</Link></li>
+            <li><Link to={user.role === 'admin' ? '/admin' : '/books'}>Books</Link></li>
+            <li><Link to="/profile">Profile</Link></li>
             <li><span style={{ color: 'var(--text-secondary)' }}>Hello, {user.username}</span></li>
             <li><button className="btn btn-outline" onClick={handleLogout} style={{ padding: '8px 16px' }}>Logout</button></li>
           </>
