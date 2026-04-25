@@ -1,19 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap');
 
 :root {
-  --primary: #1B263B;
-  --primary-glow: rgba(27, 38, 59, 0.2);
-  --secondary: #415A77;
-  --accent: #E0A458;
-  --accent-glow: rgba(224, 164, 88, 0.4);
-  --bg-page: #F8F9FA;
-  --text-main: #212529;
-  --text-secondary: #495057;
-  --glass: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(27, 38, 59, 0.1);
-  --glass-shine: rgba(27, 38, 59, 0.05);
-  --danger: #d00000;
-  --success: #38b000;
+  --primary: #132440;
+  --primary-glow: rgba(19, 36, 64, 0.2);
+  --secondary: #db8270;
+  --accent: #edbc79;
+  --accent-glow: rgba(237, 188, 121, 0.4);
+  --bg-page: #c3cdd9;
+  --text-main: #132440;
+  --text-secondary: rgba(19, 36, 64, 0.7);
+  --glass: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shine: rgba(19, 36, 64, 0.05);
+  --danger: #db8270;
+  --success: #edbc79;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -66,12 +66,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-  background: var(--secondary);
+  background: var(--primary);
   color: white;
 }
 
 .btn-primary:hover {
-  background: var(--primary);
+  background: var(--secondary);
+  color: white;
   transform: translateY(-2px);
 }
 
@@ -186,8 +187,8 @@ h1, h2, h3, h4, h5, h6 {
   text-transform: capitalize;
 }
 
-.status-available { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-.status-borrowed { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+.status-available { background: rgba(237, 188, 121, 0.3); color: #132440; }
+.status-borrowed { background: rgba(219, 130, 112, 0.2); color: var(--danger); }
 
 /* Modal */
 .modal-overlay {
@@ -196,7 +197,7 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.8);
+  background: rgba(19, 36, 64, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
