@@ -1,0 +1,26 @@
+name: Seed Production Database
+
+on:
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run Seed Script
+        working-directory: ./backend
+        run: node seed_production.js
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
