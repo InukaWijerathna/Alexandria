@@ -5,7 +5,6 @@ const path = require('path');
 
 let db;
 let pool;
-let isPostgres = false;
 
 function pgParams(sql, params = []) {
     let i = 0;
@@ -14,43 +13,27 @@ function pgParams(sql, params = []) {
 
 function makeClientProxy(client) {
     return {
-        all: async (sql, params = []) => {
-            const res = await client.query(pgParams(sql, params));
-            return res.rows;
-        },
-        get: async (sql, params = []) => {
-            const res = await client.query(pgParams(sql, params));
-            return res.rows[0];
-        },
-        run: async (sql, params = []) => {
-            return await client.query(pgParams(sql, params));
-        },
+        all: async (sql, params = []) => (await client.query(pgParams(sql, params))).rows,
+        get: async (sql, params = []) => (await client.query(pgParams(sql, params))).rows[0],
+        run: async (sql, params = []) => client.query(pgParams(sql, params)),
     };
 }
 
 async function initDb() {
     if (process.env.DATABASE_URL) {
-        isPostgres = true;
         pool = new Pool({
             connectionString: process.env.DATABASE_URL,
             ssl: { rejectUnauthorized: false },
+            max: 3,
+            connectionTimeoutMillis: 8000,
+            idleTimeoutMillis: 20000,
         });
 
         db = {
-            all: async (sql, params = []) => {
-                const res = await pool.query(pgParams(sql, params));
-                return res.rows;
-            },
-            get: async (sql, params = []) => {
-                const res = await pool.query(pgParams(sql, params));
-                return res.rows[0];
-            },
-            run: async (sql, params = []) => {
-                return await pool.query(pgParams(sql, params));
-            },
-            exec: async (sql) => {
-                return await pool.query(sql);
-            },
+            all: async (sql, params = []) => (await pool.query(pgParams(sql, params))).rows,
+            get: async (sql, params = []) => (await pool.query(pgParams(sql, params))).rows[0],
+            run: async (sql, params = []) => pool.query(pgParams(sql, params)),
+            exec: async (sql) => pool.query(sql),
             transaction: async (callback) => {
                 const client = await pool.connect();
                 try {
@@ -67,7 +50,8 @@ async function initDb() {
             },
         };
 
-        await db.exec(`
+        // Single round-trip: create tables + all migrations in one query
+        await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 username TEXT UNIQUE NOT NULL,
@@ -78,7 +62,6 @@ async function initDb() {
                 phone TEXT,
                 bio TEXT
             );
-
             CREATE TABLE IF NOT EXISTS books (
                 id SERIAL PRIMARY KEY,
                 title TEXT NOT NULL,
@@ -87,32 +70,22 @@ async function initDb() {
                 genre TEXT,
                 status TEXT DEFAULT 'available'
             );
-
             CREATE TABLE IF NOT EXISTS borrows (
                 id SERIAL PRIMARY KEY,
-                userId INTEGER REFERENCES users(id),
-                bookId INTEGER REFERENCES books(id),
-                checkoutDate TEXT,
-                dueDate TEXT,
-                returnDate TEXT
+                userid INTEGER REFERENCES users(id),
+                bookid INTEGER REFERENCES books(id),
+                checkoutdate TEXT,
+                duedate TEXT,
+                returndate TEXT
             );
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS fullname TEXT;
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT;
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS phone TEXT;
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT;
+            CREATE INDEX IF NOT EXISTS idx_books_title ON books (title);
+            CREATE INDEX IF NOT EXISTS idx_books_genre ON books (genre);
+            CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
         `);
-
-        // Migrations: add profile columns to existing tables
-        const migrations = [
-            'ALTER TABLE users ADD COLUMN IF NOT EXISTS fullname TEXT',
-            'ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT',
-            'ALTER TABLE users ADD COLUMN IF NOT EXISTS phone TEXT',
-            'ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT',
-            'CREATE INDEX IF NOT EXISTS idx_books_title ON books (title)',
-            'CREATE INDEX IF NOT EXISTS idx_books_genre ON books (genre)',
-            'CREATE INDEX IF NOT EXISTS idx_users_username ON users (username)',
-            'CREATE INDEX IF NOT EXISTS idx_borrows_userid ON borrows (userid)',
-            'CREATE INDEX IF NOT EXISTS idx_borrows_bookid ON borrows (bookid)',
-        ];
-        for (const sql of migrations) {
-            try { await pool.query(sql); } catch { /* already applied */ }
-        }
 
         console.log('PostgreSQL database initialized.');
     } else {
@@ -132,7 +105,6 @@ async function initDb() {
                 phone TEXT,
                 bio TEXT
             );
-
             CREATE TABLE IF NOT EXISTS books (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
@@ -141,7 +113,6 @@ async function initDb() {
                 genre TEXT,
                 status TEXT DEFAULT 'available'
             );
-
             CREATE TABLE IF NOT EXISTS borrows (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 userId INTEGER REFERENCES users(id),
@@ -152,17 +123,14 @@ async function initDb() {
             );
         `);
 
-        // Migrations: add profile columns to existing tables
         for (const col of ['fullname', 'email', 'phone', 'bio']) {
-            try { await db.run(`ALTER TABLE users ADD COLUMN ${col} TEXT`); } catch { /* already exists */ }
+            try { await db.run(`ALTER TABLE users ADD COLUMN ${col} TEXT`); } catch { /* exists */ }
         }
 
         await db.exec(`
             CREATE INDEX IF NOT EXISTS idx_books_title ON books (title);
             CREATE INDEX IF NOT EXISTS idx_books_genre ON books (genre);
             CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
-            CREATE INDEX IF NOT EXISTS idx_borrows_userid ON borrows (userId);
-            CREATE INDEX IF NOT EXISTS idx_borrows_bookid ON borrows (bookId);
         `);
 
         db.transaction = async (callback) => {

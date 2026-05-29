@@ -24,7 +24,7 @@ router.post('/checkout', authMiddleware, async (req, res) => {
 
         await db.transaction(async (tx) => {
             await tx.run(
-                'INSERT INTO borrows (userId, bookId, checkoutDate, dueDate) VALUES (?, ?, ?, ?)',
+                'INSERT INTO borrows (userid, bookid, checkoutdate, duedate) VALUES (?, ?, ?, ?)',
                 [userId, bookId, checkoutDate, dueDate.toISOString()]
             );
             await tx.run('UPDATE books SET status = ? WHERE id = ?', ['borrowed', bookId]);
@@ -46,7 +46,7 @@ router.post('/return', authMiddleware, async (req, res) => {
     const db = await getDb();
     try {
         const borrow = await db.get(
-            'SELECT * FROM borrows WHERE bookId = ? AND returnDate IS NULL',
+            'SELECT * FROM borrows WHERE bookid = ? AND returndate IS NULL',
             [bookId]
         );
         if (!borrow) return res.status(400).json({ message: 'Book is not currently borrowed.' });
@@ -54,7 +54,7 @@ router.post('/return', authMiddleware, async (req, res) => {
         const returnDate = new Date().toISOString();
 
         await db.transaction(async (tx) => {
-            await tx.run('UPDATE borrows SET returnDate = ? WHERE id = ?', [returnDate, borrow.id]);
+            await tx.run('UPDATE borrows SET returndate = ? WHERE id = ?', [returnDate, borrow.id]);
             await tx.run('UPDATE books SET status = ? WHERE id = ?', ['available', bookId]);
         });
 
@@ -71,12 +71,15 @@ router.get('/my-borrows', authMiddleware, async (req, res) => {
     const db = await getDb();
     try {
         const borrows = await db.all(
-            `SELECT b.id, b.bookId, b.checkoutDate, b.dueDate,
+            `SELECT b.id,
+                    b.bookid    AS "bookId",
+                    b.checkoutdate AS "checkoutDate",
+                    b.duedate   AS "dueDate",
                     bo.title, bo.author, bo.isbn, bo.genre
              FROM borrows b
-             JOIN books bo ON b.bookId = bo.id
-             WHERE b.userId = ? AND b.returnDate IS NULL
-             ORDER BY b.dueDate ASC`,
+             JOIN books bo ON b.bookid = bo.id
+             WHERE b.userid = ? AND b.returndate IS NULL
+             ORDER BY b.duedate ASC`,
             [userId]
         );
         res.json(borrows);
@@ -96,18 +99,21 @@ router.get('/history', authMiddleware, async (req, res) => {
     const db = await getDb();
     try {
         const history = await db.all(
-            `SELECT b.id, b.checkoutDate, b.dueDate, b.returnDate,
+            `SELECT b.id,
+                    b.checkoutdate AS "checkoutDate",
+                    b.duedate      AS "dueDate",
+                    b.returndate   AS "returnDate",
                     bo.title, bo.author, bo.genre
              FROM borrows b
-             JOIN books bo ON b.bookId = bo.id
-             WHERE b.userId = ?
-             ORDER BY b.checkoutDate DESC
+             JOIN books bo ON b.bookid = bo.id
+             WHERE b.userid = ?
+             ORDER BY b.checkoutdate DESC
              LIMIT ? OFFSET ?`,
             [userId, limit, offset]
         );
 
         const countRow = await db.get(
-            'SELECT COUNT(*) AS total FROM borrows WHERE userId = ?',
+            'SELECT COUNT(*) AS total FROM borrows WHERE userid = ?',
             [userId]
         );
         const total = parseInt(countRow?.total || 0);
