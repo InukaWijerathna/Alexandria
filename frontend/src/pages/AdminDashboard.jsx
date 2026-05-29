@@ -93,7 +93,7 @@ function AdminDashboard() {
   };
 
   return (
-    <div className="container page-enter">
+    <div className="page-enter">
       <div className="page-header">
         <div>
           <h1>Manage Books</h1>

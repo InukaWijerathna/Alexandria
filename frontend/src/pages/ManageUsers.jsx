@@ -82,7 +82,7 @@ function ManageUsers() {
   }
 
   return (
-    <div className="container page-enter">
+    <div className="page-enter">
       <div className="page-header">
         <div>
           <h1>Manage Members</h1>
