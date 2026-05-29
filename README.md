@@ -4,6 +4,36 @@
 
 **Alexandria** is a modern, sophisticated Library Management System designed with an elegant academic aesthetic. Built with a full-stack Node.js/React architecture and SQLite persistence.
 
+## 🔑 Demo Credentials
+
+Try the live app at [https://inukawijerathna.me/Alexandria/](https://inukawijerathna.me/Alexandria/) using the credentials below.
+
+### Admin
+| Field | Value |
+|-------|-------|
+| Username | `admin1` |
+| Password | `testadmin1` |
+
+**Admin can:**
+- Add, edit, and delete books from the catalog
+- Browse the full library and borrow books
+- Manage member accounts (create / delete users)
+- View library-wide stats (total books, available, borrowed, members)
+
+### Member
+| Field | Value |
+|-------|-------|
+| Username | `member1` |
+| Password | `testmember1` |
+
+**Member can:**
+- Browse and search the full library catalog
+- Borrow available books and track due dates
+- Return borrowed books
+- View and edit their profile
+
+---
+
 ## 🏛️ Core Features
 
 - **User Authentication**: Secure Login & Registration with JWT (Admin & Member roles).
