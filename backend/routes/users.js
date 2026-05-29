@@ -3,32 +3,84 @@ const router = express.Router();
 const { getDb } = require('../database');
 const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleware');
 
-// Get all users (Admin only)
-router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
+// GET /users/profile — current user's profile
+router.get('/profile', authMiddleware, async (req, res) => {
     const db = await getDb();
     try {
-        const users = await db.all('SELECT id, username, role FROM users');
-        res.json(users);
+        const user = await db.get(
+            'SELECT fullname, email, phone, bio FROM users WHERE id = ?',
+            [req.user.id]
+        );
+        res.json({
+            fullName: user?.fullname || '',
+            email: user?.email || '',
+            phone: user?.phone || '',
+            bio: user?.bio || '',
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching users' });
+        console.error('Error fetching profile:', error);
+        res.status(500).json({ message: 'Error fetching profile.' });
     }
 });
 
-// Delete a user (Admin only)
+// PUT /users/profile — update current user's profile
+router.put('/profile', authMiddleware, async (req, res) => {
+    const { fullName, email, phone, bio } = req.body;
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ message: 'Invalid email address.' });
+    }
+
+    const db = await getDb();
+    try {
+        await db.run(
+            'UPDATE users SET fullname = ?, email = ?, phone = ?, bio = ? WHERE id = ?',
+            [fullName?.trim() || null, email?.trim() || null, phone?.trim() || null, bio?.trim() || null, req.user.id]
+        );
+        res.json({ message: 'Profile updated successfully.' });
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).json({ message: 'Error updating profile.' });
+    }
+});
+
+// GET /users — all users with pagination (admin only)
+router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const offset = (page - 1) * limit;
+
+    const db = await getDb();
+    try {
+        const countRow = await db.get('SELECT COUNT(*) AS total FROM users');
+        const total = parseInt(countRow?.total || 0);
+        const users = await db.all(
+            'SELECT id, username, role FROM users ORDER BY username LIMIT ? OFFSET ?',
+            [limit, offset]
+        );
+        res.json({ users, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ message: 'Error fetching users.' });
+    }
+});
+
+// DELETE /users/:id — remove user and their borrow records (admin only)
 router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
     const db = await getDb();
-    
-    try {
-        // Prevent admin from deleting themselves
-        if (parseInt(id) === req.user.id) {
-            return res.status(400).json({ message: 'You cannot delete your own admin account' });
-        }
 
+    if (parseInt(id) === req.user.id) {
+        return res.status(400).json({ message: 'You cannot delete your own admin account.' });
+    }
+
+    try {
+        await db.run('DELETE FROM borrows WHERE userId = ?', [id]);
         await db.run('DELETE FROM users WHERE id = ?', [id]);
-        res.json({ message: 'User deleted successfully' });
+        res.json({ message: 'User deleted successfully.' });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting user' });
+        console.error('Error deleting user:', error);
+        res.status(500).json({ message: 'Error deleting user.' });
     }
 });
 
