@@ -4,3 +4,4 @@ dist
 library.db
 .DS_Store
 *.log
+.vercel
