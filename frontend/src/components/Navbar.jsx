@@ -20,7 +20,7 @@ function Navbar({ user, onLogout }) {
 
         {/* Brand */}
         <NavLink to="/" className="header-brand" onClick={close}>
-          <div className="header-logo-mark">A</div>
+          <img src={import.meta.env.BASE_URL + 'favicon.svg'} className="header-logo-mark" alt="Alexandria" />
           <div className="header-brand-text">
             <span className="header-logo-name">Alexandria</span>
             <span className="header-logo-sub">Library System</span>

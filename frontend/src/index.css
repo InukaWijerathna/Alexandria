@@ -259,17 +259,8 @@ nav.glass-card:hover,
 .header-logo-mark {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 800;
-  letter-spacing: -1px;
-  box-shadow: 0 2px 8px rgba(19, 36, 64, 0.25);
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .header-brand-text {
@@ -996,15 +987,7 @@ nav.glass-card:hover,
 .footer-logo-mark {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent) 0%, #e8a84a 100%);
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 800;
+  object-fit: contain;
   flex-shrink: 0;
 }
 
