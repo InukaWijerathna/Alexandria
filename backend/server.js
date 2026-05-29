@@ -1,8 +1,14 @@
 require('dotenv').config();
 
 if (!process.env.JWT_SECRET) {
-    console.error('FATAL: JWT_SECRET environment variable is not set. Refusing to start.');
-    process.exit(1);
+    if (require.main === module) {
+        // Direct execution (local dev) — refuse to start without the secret
+        console.error('FATAL: JWT_SECRET is not set. Exiting.');
+        process.exit(1);
+    } else {
+        // Serverless (Vercel) — log and continue; auth routes will return 500 if called
+        console.error('WARNING: JWT_SECRET is not set. Authentication will not work.');
+    }
 }
 
 const express = require('express');
@@ -81,13 +87,20 @@ app.use('/api/books', bookRoutes);
 app.use('/api/borrow', borrowRoutes);
 app.use('/api/users', userRoutes);
 
-// Static files (production build)
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-// SPA fallback
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
-});
+// Static files — only serve if the dist folder exists (local full-stack mode)
+const distPath = path.join(__dirname, '../frontend/dist');
+const fs = require('fs');
+if (fs.existsSync(distPath)) {
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+    });
+} else {
+    // Serverless / API-only mode: return a simple response for non-API routes
+    app.get('*', (req, res) => {
+        res.status(404).json({ message: 'This is the Alexandria API. The frontend is served separately.' });
+    });
+}
 
 // Global error handler
 app.use((err, req, res, next) => {
