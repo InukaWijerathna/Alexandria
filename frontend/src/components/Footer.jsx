@@ -12,7 +12,7 @@ function Footer({ user }) {
           {/* Brand column */}
           <div className="footer-col footer-brand-col">
             <div className="footer-logo">
-              <img src={import.meta.env.BASE_URL + 'favicon.svg'} className="footer-logo-mark" alt="Alexandria" />
+              <img src={import.meta.env.BASE_URL + 'favicon.ico'} className="footer-logo-mark" alt="Alexandria" />
               <span className="footer-logo-name">Alexandria</span>
             </div>
             <p className="footer-tagline">
