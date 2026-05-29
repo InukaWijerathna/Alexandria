@@ -5,8 +5,8 @@ const { authMiddleware, adminMiddleware } = require('../middleware/authMiddlewar
 
 // GET /books/stats — dashboard stats (admin only)
 router.get('/stats', authMiddleware, adminMiddleware, async (req, res) => {
-    const db = await getDb();
     try {
+            const db = await getDb();
         const [total, available, borrowed, members] = await Promise.all([
             db.get('SELECT COUNT(*) AS count FROM books'),
             db.get("SELECT COUNT(*) AS count FROM books WHERE status = 'available'"),
@@ -27,8 +27,8 @@ router.get('/stats', authMiddleware, adminMiddleware, async (req, res) => {
 
 // GET /books/genres — distinct genre list (must be before /:id routes)
 router.get('/genres', async (req, res) => {
-    const db = await getDb();
     try {
+            const db = await getDb();
         const rows = await db.all(
             "SELECT DISTINCT genre FROM books WHERE genre IS NOT NULL AND genre != '' ORDER BY genre"
         );
@@ -46,7 +46,6 @@ router.get('/', async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 20, 100);
     const offset = (page - 1) * limit;
 
-    const db = await getDb();
     let where = 'WHERE 1=1';
     const params = [];
 
@@ -60,6 +59,7 @@ router.get('/', async (req, res) => {
     }
 
     try {
+        const db = await getDb();
         const countRow = await db.get(`SELECT COUNT(*) AS total FROM books ${where}`, params);
         const total = parseInt(countRow?.total || 0);
 
@@ -83,8 +83,8 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
         return res.status(400).json({ message: 'Title and author are required.' });
     }
 
-    const db = await getDb();
     try {
+            const db = await getDb();
         await db.run(
             'INSERT INTO books (title, author, isbn, genre) VALUES (?, ?, ?, ?)',
             [title.trim(), author.trim(), isbn?.trim() || null, genre?.trim() || null]
@@ -113,8 +113,8 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
         return res.status(400).json({ message: 'Invalid status value.' });
     }
 
-    const db = await getDb();
     try {
+            const db = await getDb();
         await db.run(
             'UPDATE books SET title = ?, author = ?, isbn = ?, genre = ?, status = ? WHERE id = ?',
             [title.trim(), author.trim(), isbn?.trim() || null, genre?.trim() || null, status || 'available', id]
@@ -129,8 +129,8 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
 // DELETE /books/:id — remove (admin only)
 router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
-    const db = await getDb();
     try {
+            const db = await getDb();
         await db.run('DELETE FROM books WHERE id = ?', [id]);
         res.json({ message: 'Book deleted successfully.' });
     } catch (error) {

@@ -10,8 +10,8 @@ router.post('/checkout', authMiddleware, async (req, res) => {
 
     if (!bookId) return res.status(400).json({ message: 'bookId is required.' });
 
-    const db = await getDb();
     try {
+            const db = await getDb();
         const book = await db.get('SELECT * FROM books WHERE id = ?', [bookId]);
         if (!book) return res.status(404).json({ message: 'Book not found.' });
         if (book.status !== 'available') {
@@ -43,8 +43,8 @@ router.post('/return', authMiddleware, async (req, res) => {
 
     if (!bookId) return res.status(400).json({ message: 'bookId is required.' });
 
-    const db = await getDb();
     try {
+            const db = await getDb();
         const borrow = await db.get(
             'SELECT * FROM borrows WHERE bookid = ? AND returndate IS NULL',
             [bookId]
@@ -68,8 +68,8 @@ router.post('/return', authMiddleware, async (req, res) => {
 // GET /borrow/my-borrows — active borrows only
 router.get('/my-borrows', authMiddleware, async (req, res) => {
     const userId = req.user.id;
-    const db = await getDb();
     try {
+            const db = await getDb();
         const borrows = await db.all(
             `SELECT b.id,
                     b.bookid    AS "bookId",
@@ -96,8 +96,8 @@ router.get('/history', authMiddleware, async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 10, 50);
     const offset = (page - 1) * limit;
 
-    const db = await getDb();
     try {
+            const db = await getDb();
         const history = await db.all(
             `SELECT b.id,
                     b.checkoutdate AS "checkoutDate",

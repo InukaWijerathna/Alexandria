@@ -15,15 +15,14 @@ function validateSignup(username, password) {
     return null;
 }
 
-// Signup — always registers as 'member'; role cannot be set by the client
+// Signup
 router.post('/signup', async (req, res) => {
     const { username, password } = req.body;
-
     const validationError = validateSignup(username, password);
     if (validationError) return res.status(400).json({ message: validationError });
 
-    const db = await getDb();
     try {
+        const db = await getDb();
         const hashedPassword = await bcrypt.hash(password, 10);
         await db.run(
             'INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
@@ -31,25 +30,23 @@ router.post('/signup', async (req, res) => {
         );
         res.status(201).json({ message: 'Account created successfully.' });
     } catch (error) {
-        // SQLite: SQLITE_CONSTRAINT  |  PostgreSQL: 23505 unique_violation
         if (error.code === 'SQLITE_CONSTRAINT' || error.code === '23505') {
             return res.status(400).json({ message: 'Username already taken.' });
         }
         console.error('Signup error:', error);
-        res.status(500).json({ message: 'Error creating account.' });
+        res.status(500).json({ message: 'Service unavailable. Please try again shortly.' });
     }
 });
 
 // Login
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
-
     if (!username || !password) {
         return res.status(400).json({ message: 'Username and password are required.' });
     }
 
-    const db = await getDb();
     try {
+        const db = await getDb();
         const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
         if (!user) return res.status(400).json({ message: 'Invalid username or password.' });
 
@@ -64,7 +61,7 @@ router.post('/login', async (req, res) => {
         res.json({ token, user: { id: user.id, username: user.username, role: user.role } });
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ message: 'Error logging in.' });
+        res.status(500).json({ message: 'Service unavailable. Please try again shortly.' });
     }
 });
 

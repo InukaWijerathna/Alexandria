@@ -28,6 +28,11 @@ const PORT = process.env.PORT || 5000;
 // Trust Vercel's proxy so express-rate-limit can read the real client IP
 app.set('trust proxy', 1);
 
+// Patch Express 4 to forward unhandled async errors to the error handler
+// (Express 5 does this automatically; we're on 4.x in the backend)
+const asyncHandler = (fn) => (req, res, next) =>
+    Promise.resolve(fn(req, res, next)).catch(next);
+
 // CORS — if ALLOWED_ORIGINS is set, restrict to that list + localhost.
 // If unset, allow all origins (preserves original behaviour for existing deployments).
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')

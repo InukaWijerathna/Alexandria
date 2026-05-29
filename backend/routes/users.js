@@ -6,8 +6,8 @@ const { authMiddleware, adminMiddleware } = require('../middleware/authMiddlewar
 
 // GET /users/profile — current user's profile
 router.get('/profile', authMiddleware, async (req, res) => {
-    const db = await getDb();
     try {
+            const db = await getDb();
         const user = await db.get(
             'SELECT fullname, email, phone, bio FROM users WHERE id = ?',
             [req.user.id]
@@ -32,8 +32,8 @@ router.put('/profile', authMiddleware, async (req, res) => {
         return res.status(400).json({ message: 'Invalid email address.' });
     }
 
-    const db = await getDb();
     try {
+            const db = await getDb();
         await db.run(
             'UPDATE users SET fullname = ?, email = ?, phone = ?, bio = ? WHERE id = ?',
             [fullName?.trim() || null, email?.trim() || null, phone?.trim() || null, bio?.trim() || null, req.user.id]
@@ -60,8 +60,8 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
         return res.status(400).json({ message: 'Invalid role.' });
     }
 
-    const db = await getDb();
     try {
+            const db = await getDb();
         const hashedPassword = await bcrypt.hash(password, 10);
         await db.run(
             'INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
@@ -83,8 +83,8 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 50, 200);
     const offset = (page - 1) * limit;
 
-    const db = await getDb();
     try {
+            const db = await getDb();
         const countRow = await db.get('SELECT COUNT(*) AS total FROM users');
         const total = parseInt(countRow?.total || 0);
         const users = await db.all(
@@ -101,14 +101,14 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
 // DELETE /users/:id — remove user and their borrow records (admin only)
 router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
-    const db = await getDb();
 
     if (parseInt(id) === req.user.id) {
         return res.status(400).json({ message: 'You cannot delete your own admin account.' });
     }
 
     try {
-        await db.run('DELETE FROM borrows WHERE userId = ?', [id]);
+        const db = await getDb();
+        await db.run('DELETE FROM borrows WHERE userid = ?', [id]);
         await db.run('DELETE FROM users WHERE id = ?', [id]);
         res.json({ message: 'User deleted successfully.' });
     } catch (error) {
