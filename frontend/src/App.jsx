@@ -1,6 +1,7 @@
 import React, { useState, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
@@ -56,7 +57,7 @@ function App() {
     <Router basename={import.meta.env.BASE_URL}>
       <ErrorBoundary>
         <Navbar user={user} onLogout={handleLogout} />
-        <div className="container">
+        <main className="container">
           <Routes>
             <Route path="/login" element={!user ? <Login onLogin={handleLogin} /> : <Navigate to={user.role === 'admin' ? '/admin' : '/books'} />} />
             <Route path="/register" element={!user ? <Register /> : <Navigate to={user.role === 'admin' ? '/admin' : '/books'} />} />
@@ -68,7 +69,8 @@ function App() {
 
             <Route path="/" element={<Navigate to={user ? (user.role === 'admin' ? '/admin' : '/books') : '/login'} />} />
           </Routes>
-        </div>
+        </main>
+        <Footer user={user} />
       </ErrorBoundary>
     </Router>
   );
