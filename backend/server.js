@@ -19,7 +19,8 @@ const userRoutes = require('./routes/users');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS — restrict to known origins; localhost always allowed for development
+// CORS — if ALLOWED_ORIGINS is set, restrict to that list + localhost.
+// If unset, allow all origins (preserves original behaviour for existing deployments).
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
     .split(',')
     .map((o) => o.trim())
@@ -28,6 +29,7 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin) return callback(null, true); // server-to-server / mobile
+        if (allowedOrigins.length === 0) return callback(null, true); // no restriction configured
         if (
             allowedOrigins.includes(origin) ||
             /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
