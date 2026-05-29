@@ -25,8 +25,9 @@ async function initDb() {
             connectionString: process.env.DATABASE_URL,
             ssl: { rejectUnauthorized: false },
             max: 3,
-            connectionTimeoutMillis: 8000,
-            idleTimeoutMillis: 20000,
+            connectionTimeoutMillis: 5000,
+            idleTimeoutMillis: 10000,
+            query_timeout: 8000,
         });
 
         db = {

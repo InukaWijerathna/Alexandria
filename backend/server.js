@@ -25,6 +25,9 @@ const userRoutes = require('./routes/users');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust Vercel's proxy so express-rate-limit can read the real client IP
+app.set('trust proxy', 1);
+
 // CORS — if ALLOWED_ORIGINS is set, restrict to that list + localhost.
 // If unset, allow all origins (preserves original behaviour for existing deployments).
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
