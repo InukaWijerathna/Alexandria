@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
 const { getDb } = require('../database');
 const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleware');
 
@@ -41,6 +42,38 @@ router.put('/profile', authMiddleware, async (req, res) => {
     } catch (error) {
         console.error('Error updating profile:', error);
         res.status(500).json({ message: 'Error updating profile.' });
+    }
+});
+
+// POST /users — admin creates a new user (any role)
+router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
+    const { username, password, role } = req.body;
+
+    if (!username?.trim() || username.trim().length < 3) {
+        return res.status(400).json({ message: 'Username must be at least 3 characters.' });
+    }
+    if (!password || password.length < 8) {
+        return res.status(400).json({ message: 'Password must be at least 8 characters.' });
+    }
+    const validRoles = ['member', 'admin'];
+    if (role && !validRoles.includes(role)) {
+        return res.status(400).json({ message: 'Invalid role.' });
+    }
+
+    const db = await getDb();
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await db.run(
+            'INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
+            [username.trim(), hashedPassword, role || 'member']
+        );
+        res.status(201).json({ message: 'User created successfully.' });
+    } catch (error) {
+        if (error.code === 'SQLITE_CONSTRAINT' || error.code === '23505') {
+            return res.status(400).json({ message: 'Username already taken.' });
+        }
+        console.error('Error creating user:', error);
+        res.status(500).json({ message: 'Error creating user.' });
     }
 });
 

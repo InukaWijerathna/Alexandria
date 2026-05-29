@@ -3,6 +3,28 @@ const router = express.Router();
 const { getDb } = require('../database');
 const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleware');
 
+// GET /books/stats — dashboard stats (admin only)
+router.get('/stats', authMiddleware, adminMiddleware, async (req, res) => {
+    const db = await getDb();
+    try {
+        const [total, available, borrowed, members] = await Promise.all([
+            db.get('SELECT COUNT(*) AS count FROM books'),
+            db.get("SELECT COUNT(*) AS count FROM books WHERE status = 'available'"),
+            db.get("SELECT COUNT(*) AS count FROM books WHERE status = 'borrowed'"),
+            db.get("SELECT COUNT(*) AS count FROM users WHERE role = 'member'"),
+        ]);
+        res.json({
+            totalBooks: parseInt(total?.count || 0),
+            available: parseInt(available?.count || 0),
+            borrowed: parseInt(borrowed?.count || 0),
+            totalMembers: parseInt(members?.count || 0),
+        });
+    } catch (error) {
+        console.error('Error fetching stats:', error);
+        res.status(500).json({ message: 'Error fetching stats.' });
+    }
+});
+
 // GET /books/genres — distinct genre list (must be before /:id routes)
 router.get('/genres', async (req, res) => {
     const db = await getDb();
