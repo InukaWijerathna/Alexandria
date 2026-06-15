@@ -1,0 +1,13 @@
+name: Database Keep-Alive
+
+on:
+  schedule:
+    - cron: '0 0 */6 * *' # Every 6 days
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint
+        run: curl -fsS "${{ secrets.API_URL }}/api/health"

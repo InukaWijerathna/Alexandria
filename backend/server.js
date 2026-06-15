@@ -81,7 +81,9 @@ app.use('/api/auth', authLimiter);
 app.use('/api', apiLimiter);
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+    const db = await getDb();
+    await db.get('SELECT 1');
     res.json({
         status: 'working',
         message: 'Alexandria API is live!',
