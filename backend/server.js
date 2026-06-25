@@ -82,13 +82,18 @@ app.use('/api', apiLimiter);
 
 // Health check
 app.get('/api/health', async (req, res) => {
-    const db = await getDb();
-    await db.get('SELECT 1');
-    res.json({
-        status: 'working',
-        message: 'Alexandria API is live!',
-        database: process.env.DATABASE_URL ? 'PostgreSQL (Supabase)' : 'SQLite (Local)',
-    });
+    try {
+        const db = await getDb();
+        await db.get('SELECT 1');
+        res.json({
+            status: 'working',
+            message: 'Alexandria API is live!',
+            database: process.env.DATABASE_URL ? 'PostgreSQL (Supabase)' : 'SQLite (Local)',
+        });
+    } catch (error) {
+        console.error('Error checking health:', error);
+        res.status(500).json({ status: 'error', message: 'Health check failed.' });
+    }
 });
 
 // Routes
