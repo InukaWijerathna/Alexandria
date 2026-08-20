@@ -2,7 +2,7 @@ name: Database Keep-Alive
 
 on:
   schedule:
-    - cron: '0 0 */6 * *' # Every 6 days
+    - cron: '0 0 */5 * *' # Every 5 days
   workflow_dispatch: # Allows manual trigger
 
 jobs:
