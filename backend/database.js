@@ -86,6 +86,9 @@ async function initDb() {
             CREATE INDEX IF NOT EXISTS idx_books_title ON books (title);
             CREATE INDEX IF NOT EXISTS idx_books_genre ON books (genre);
             CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
+            ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+            ALTER TABLE books ENABLE ROW LEVEL SECURITY;
+            ALTER TABLE borrows ENABLE ROW LEVEL SECURITY;
         `);
 
         console.log('PostgreSQL database initialized.');
